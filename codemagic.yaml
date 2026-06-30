@@ -11,10 +11,9 @@ workflows:
           unzip -q /tmp/gradle.zip -d /tmp/
           export PATH="/tmp/gradle-8.9/bin:$PATH"
           gradle --version
-      - name: Build Android APK
+      - name: Build Android APK (Debug)
         script: |
           export PATH="/tmp/gradle-8.9/bin:$PATH"
-          gradle assembleRelease
+          gradle assembleDebug --stacktrace --info 2>&1 | tail -80
     artifacts:
       - app/build/outputs/**/*.apk
-      - app/build/outputs/**/*.aab

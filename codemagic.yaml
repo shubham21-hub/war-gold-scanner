@@ -5,12 +5,16 @@ workflows:
     environment:
       java: 17
     scripts:
-      - name: Make gradlew executable
+      - name: Install Gradle 8.9
         script: |
-          chmod +x gradlew
+          curl -L https://services.gradle.org/distributions/gradle-8.9-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp/
+          export PATH="/tmp/gradle-8.9/bin:$PATH"
+          gradle --version
       - name: Build Android APK
         script: |
-          ./gradlew assembleRelease
+          export PATH="/tmp/gradle-8.9/bin:$PATH"
+          gradle assembleRelease
     artifacts:
       - app/build/outputs/**/*.apk
       - app/build/outputs/**/*.aab

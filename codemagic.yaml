@@ -1,5 +1,5 @@
 workflows:
-  android-release:
+  android-debug:
     name: War Gold Scanner Android Build
     max_build_duration: 30
     environment:
@@ -7,13 +7,21 @@ workflows:
     scripts:
       - name: Install Gradle 8.9
         script: |
-          curl -L https://services.gradle.org/distributions/gradle-8.9-bin.zip -o /tmp/gradle.zip
-          unzip -q /tmp/gradle.zip -d /tmp/
-          export PATH="/tmp/gradle-8.9/bin:$PATH"
+          wget -q https://services.gradle.org/distributions/gradle-8.9-bin.zip -O /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /opt
+          export PATH=/opt/gradle-8.9/bin:$PATH
           gradle --version
+
       - name: Build Android APK (Debug)
         script: |
-          export PATH="/tmp/gradle-8.9/bin:$PATH"
-          gradle assembleDebug --stacktrace --info 2>&1 | tail -80
+          export PATH=/opt/gradle-8.9/bin:$PATH
+          gradle assembleDebug
+
+      - name: List APK output
+        script: |
+          echo "=== APK files found ==="
+          find . -name "*.apk" 2>/dev/null
+          echo "=== End ==="
+
     artifacts:
-      - app/build/outputs/**/*.apk
+      - "**/*.apk"

@@ -5,28 +5,18 @@ workflows:
     environment:
       java: 17
     scripts:
-      - name: Install Gradle 8.9
+      - name: Install Gradle 8.7
         script: |
-          wget -q https://services.gradle.org/distributions/gradle-8.9-bin.zip -O /tmp/gradle.zip
+          wget -q https://services.gradle.org/distributions/gradle-8.7-bin.zip -O /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /opt
-          export PATH=/opt/gradle-8.9/bin:$PATH
+          export PATH=/opt/gradle-8.7/bin:$PATH
           gradle --version
 
       - name: Build Android APK (Debug)
         script: |
-          export PATH=/opt/gradle-8.9/bin:$PATH
-          gradle assembleDebug 2>&1 | tee /tmp/build_full.log
-          BUILD_EXIT=${PIPESTATUS[0]}
-          if [ $BUILD_EXIT -ne 0 ]; then
-            echo ""
-            echo "====== COMPILE ERRORS ======"
-            grep -n "error:" /tmp/build_full.log | head -40
-            echo ""
-            echo "====== TASK FAILURES ======"
-            grep -n "FAILED\|Exception\|Could not" /tmp/build_full.log | head -20
-            echo "=============================="
-          fi
-          exit $BUILD_EXIT
+          export PATH=/opt/gradle-8.7/bin:$PATH
+          gradle :app:checkDebugAarMetadata --stacktrace 2>&1 | tail -60
+          gradle assembleDebug --stacktrace 2>&1 | grep -E "error:|FAILED|Exception|e: |> " | head -50
 
       - name: List APK output
         script: |

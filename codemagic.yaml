@@ -1,0 +1,26 @@
+workflows:
+  android-release:
+    name: War Gold Scanner Android Build
+    instance_type: mac_mini
+    max_build_duration: 30
+    environment:
+      java: 17
+      android:
+        command_line_tools: latest
+        build_tools: "35.0.0"
+        platforms:
+          - android-35
+    scripts:
+      - name: Build Android APK
+        script: |
+          ./gradlew assembleRelease
+    artifacts:
+      - app/build/outputs/**/*.apk
+      - app/build/outputs/**/*.aab
+    publishing:
+      email:
+        recipients:
+          - $CM_EMAIL
+        notify:
+          success: true
+          failure: true

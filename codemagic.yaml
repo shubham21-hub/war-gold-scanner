@@ -15,12 +15,15 @@ workflows:
       - name: Build Android APK (Debug)
         script: |
           export PATH=/opt/gradle-8.7/bin:$PATH
-          gradle assembleDebug
-          echo "=== APK Location ==="
-          find . -name "*.apk" -type f
-          echo "===================="
+          gradle assembleDebug 2>&1 | tee build_output.txt
+          BUILD_EXIT=${PIPESTATUS[0]}
+          echo ""
+          echo "=== ERROR SUMMARY ==="
+          grep -E "Caused by:|> Could not|error:|minSdk|minCompile|Failed to|FAILED" build_output.txt | head -30
+          echo "=== APK FILES ==="
+          find . -name "*.apk" -type f 2>/dev/null || echo "none"
+          exit $BUILD_EXIT
 
     artifacts:
-      - app/build/outputs/apk/debug/app-debug.apk
-      - app/build/outputs/apk/**/*.apk
+      - build_output.txt
       - "**/*.apk"

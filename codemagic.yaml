@@ -15,13 +15,22 @@ workflows:
       - name: Build Android APK (Debug)
         script: |
           export PATH=/opt/gradle-8.9/bin:$PATH
-          gradle assembleDebug
+          gradle assembleDebug 2>&1 | tee /tmp/build_full.log
+          BUILD_EXIT=${PIPESTATUS[0]}
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo ""
+            echo "====== COMPILE ERRORS ======"
+            grep -n "error:" /tmp/build_full.log | head -40
+            echo ""
+            echo "====== TASK FAILURES ======"
+            grep -n "FAILED\|Exception\|Could not" /tmp/build_full.log | head -20
+            echo "=============================="
+          fi
+          exit $BUILD_EXIT
 
       - name: List APK output
         script: |
-          echo "=== APK files found ==="
-          find . -name "*.apk" 2>/dev/null
-          echo "=== End ==="
+          find . -name "*.apk" 2>/dev/null || echo "No APK found"
 
     artifacts:
       - "**/*.apk"
